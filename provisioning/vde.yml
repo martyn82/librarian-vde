@@ -1,0 +1,22 @@
+---
+- hosts: default
+  sudo: yes
+
+  tasks:
+    - name: Set correct time zone
+      shell: echo "Europe/Amsterdam" | sudo tee /etc/timezone && sudo dpkg-reconfigure --frontend noninteractive tzdata
+
+    - name: Update APT cache
+      apt: update_cache=yes upgrade=full
+
+    - name: Install PHP
+      apt: pkg=php5
+
+    - name: Install Composer
+      shell: curl -sS https://getcomposer.org/installer | php
+
+    - name: Install Docker
+      apt: pkg=docker.io
+
+    - name: Reboot system if required
+      command: shutdown -r now 'Rebooting to complete system upgrade' removes=/var/run/reboot-required
