@@ -1,13 +1,34 @@
 ---
-- hosts: default
+- name: Set time zone
+  hosts: default
+  gather_facts: false
+  sudo: yes
+  vars:
+    timezone: Europe/Amsterdam
+
+  tasks:
+    - name: Set time zone variables
+      copy: content='{{ timezone }}'
+            dest=/etc/timezone
+            owner=root
+            group=root
+            mode=0644
+            backup=yes
+      notify:
+        - Update time zone
+
+  handlers:
+    - name: Update time zone
+      command: dpkg-reconfigure --frontend noninteractive tzdata
+
+- name: Install VDE
+  hosts: default
+  gather_facts: false
   sudo: yes
 
   tasks:
-    - name: Set correct time zone
-      shell: echo "Europe/Amsterdam" | sudo tee /etc/timezone && sudo dpkg-reconfigure --frontend noninteractive tzdata
-
     - name: Update APT cache
-      apt: update_cache=yes upgrade=full
+      apt: update_cache=yes
 
     - name: Install PHP
       apt: pkg=php5
@@ -18,5 +39,23 @@
     - name: Install Docker
       apt: pkg=docker.io
 
-    - name: Reboot system if required
-      command: shutdown -r now 'Rebooting to complete system upgrade' removes=/var/run/reboot-required
+    - name: Install GIT
+      apt: pkg=git
+
+- name: Prepare VDE projects
+  hosts: default
+  gather_facts: false
+  sudo: no
+
+  tasks:
+    - name: Copy GIT configuration
+      copy: src=~/.gitconfig dest=/home/vagrant/.gitconfig force=yes
+
+    - name: Create workspace
+      file: dest=/vagrant/projects state=directory
+
+    - name: Clone GIT repository Librarian
+      git: repo=git@github.com:martyn82/librarian.git dest=/vagrant/projects/librarian accept_hostkey=true
+
+    - name: Link projects to home
+      file: path=/home/vagrant/p src=/vagrant state=link
