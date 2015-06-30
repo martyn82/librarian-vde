@@ -18,26 +18,17 @@ If you are using VirtualBox as your VM provider for Vagrant, then make sure to i
 $ vagrant plugin install vagrant-vbguest
 ```
 
-Checkout this repository:
+Checkout the VDE repository (if you haven't already):
 ```
 $ git clone git@github.com/martyn82/librarian-vde
 ```
 
-In the root directory of the repository, run:
+In the root directory of the VDE repository, run the following command to create a virtual machine and provision this machine for working (checkout the ansible file to determine what tasks are executed when provisioning):
 ```
 $ vagrant up
 ```
-This will create a virtual machine and provision this machine for working.
 
-After privisioning has been completed, make sure to prepare your SSH configuration to handle SSH commands from within the VDE.
-You can do this by adding the output of the following command to your `~/.ssh/config` file:
-```
-$ vagrant ssh-config
-```
-
-Alter the line that says `UserKnownHostsFile` (which states /dev/null) to the location of your known_hosts file (usually ~/.ssh/known_hosts).
-
-Finally, run the following command to log in to the VDE:
+After privisioning has been completed, the machine is up and ready. Finally, run the following command to log in to the VDE. All dependent projects should be there in the `/home/vagrant/p` directory.
 ```
 $ vagrant ssh
 ```
