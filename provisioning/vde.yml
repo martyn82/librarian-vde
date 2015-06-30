@@ -33,8 +33,14 @@
     - name: Install PHP
       apt: pkg=php5
 
+    - name: Install PHP Curl extension
+      apt: pkg=php5-curl
+
     - name: Install Composer
       shell: curl -sS https://getcomposer.org/installer | php
+
+    - name: Add Composer to bin
+      shell: ln -s /home/vagrant/composer.phar /usr/local/bin/composer
 
     - name: Install Docker
       apt: pkg=docker.io
