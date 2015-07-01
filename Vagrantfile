@@ -8,6 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box_check_update = true
 
   config.vm.network :private_network, ip: "10.0.3.101"
+  config.vm.synced_folder ".", "/vagrant", nfs: true
 
   config.ssh.forward_agent = true
 
