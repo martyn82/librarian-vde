@@ -36,11 +36,19 @@
     - name: Install PHP Curl extension
       apt: pkg=php5-curl
 
+    - name: Install PHP XDebug extension
+      apt: pkg=php5-xdebug
+
+    - name: Install PHP MongoDB extension
+      apt: pkg=php5-mongo
+
     - name: Install Composer
       shell: curl -sS https://getcomposer.org/installer | php
 
     - name: Add Composer to bin
-      shell: ln -s /home/vagrant/composer.phar /usr/local/bin/composer
+      file: dest=/usr/local/bin/composer
+            src=/home/vagrant/composer.phar
+            state=link
 
     - name: Install Docker
       apt: pkg=docker.io
@@ -55,13 +63,24 @@
 
   tasks:
     - name: Copy GIT configuration
-      copy: src=~/.gitconfig dest=/home/vagrant/.gitconfig force=yes
+      copy: src=~/.gitconfig
+            dest=/home/vagrant/.gitconfig
+            force=yes
 
     - name: Create workspace
-      file: dest=/vagrant/projects state=directory
+      file: dest=/vagrant/projects
+            state=directory
 
     - name: Clone GIT repository Librarian
-      git: repo=git@github.com:martyn82/librarian.git dest=/vagrant/projects/librarian accept_hostkey=true
+      git: repo=git@github.com:martyn82/librarian.git
+           dest=/vagrant/projects/librarian
+           accept_hostkey=true
+
+    - name: Setup project Librarian
+      command: composer install
+               chdir=/vagrant/projects/librarian
 
     - name: Link projects to home
-      file: path=/home/vagrant/p src=/vagrant state=link
+      file: path=/home/vagrant/p
+            src=/vagrant
+            state=link
