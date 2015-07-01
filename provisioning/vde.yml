@@ -2,7 +2,7 @@
 - name: Set time zone
   hosts: default
   gather_facts: false
-  sudo: yes
+  sudo: true
   vars:
     timezone: Europe/Amsterdam
 
@@ -24,7 +24,7 @@
 - name: Install VDE
   hosts: default
   gather_facts: false
-  sudo: yes
+  sudo: true
 
   tasks:
     - name: Update APT cache
@@ -59,7 +59,7 @@
 - name: Prepare VDE projects
   hosts: default
   gather_facts: false
-  sudo: no
+  sudo: false
 
   tasks:
     - name: Copy GIT configuration
@@ -71,15 +71,26 @@
       file: dest=/vagrant/projects
             state=directory
 
+    - name: Determine project status
+      stat: path=/vagrant/projects/librarian
+      register: librarian
+
     - name: Clone GIT repository Librarian
       git: repo=git@github.com:martyn82/librarian.git
            dest=/vagrant/projects/librarian
            accept_hostkey=true
+      when: librarian.stat.isdir is not defined or not librarian.stat.isdir
 
-    - name: Setup project Librarian
+    - name: Composer install Librarian
       command: composer install
                chdir=/vagrant/projects/librarian
 
+- name: Finalize VDE
+  hosts: default
+  gather_facts: false
+  sudo: false
+
+  tasks:
     - name: Link projects to home
       file: path=/home/vagrant/p
             src=/vagrant
