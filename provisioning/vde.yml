@@ -67,31 +67,16 @@
             dest=/home/vagrant/.gitconfig
             force=yes
 
-    - name: Create workspace
-      file: dest=/vagrant/projects
-            state=directory
-
-    - name: Determine project status
-      stat: path=/vagrant/projects/librarian
+    - name: 'Librarian: Determine project status'
+      stat: path=/home/vagrant/p/librarian
       register: librarian
 
-    - name: Clone GIT repository Librarian
-      git: repo=git@github.com:martyn82/librarian.git
-           dest=/vagrant/projects/librarian
-           accept_hostkey=true
+    - name: 'Librarian: Clone GIT repository'
+      local_action: git repo=git@github.com:martyn82/librarian.git
+                    dest=../projects/librarian
+                    accept_hostkey=true
       when: librarian.stat.isdir is not defined or not librarian.stat.isdir
 
-    - name: Composer install Librarian
+    - name: 'Librarian: Composer install'
       command: composer install
-               chdir=/vagrant/projects/librarian
-
-- name: Finalize VDE
-  hosts: default
-  gather_facts: false
-  sudo: false
-
-  tasks:
-    - name: Link projects to home
-      file: path=/home/vagrant/p
-            src=/vagrant
-            state=link
+               chdir=/home/vagrant/p/librarian
