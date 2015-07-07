@@ -30,6 +30,9 @@
     - name: Update APT cache
       apt: update_cache=yes
 
+    - name: Install GIT
+      apt: pkg=git
+
     - name: Install PHP
       apt: pkg=php5
 
@@ -42,19 +45,36 @@
     - name: Install PHP MongoDB extension
       apt: pkg=php5-mongo
 
+    - name: Check Composer installation
+      stat: path=/usr/local/bin/composer
+      register: composer
+
     - name: Install Composer
       shell: curl -sS https://getcomposer.org/installer | php
+      when: composer.stat.islink is not defined or not composer.stat.islink
 
     - name: Add Composer to bin
       file: dest=/usr/local/bin/composer
             src=/home/vagrant/composer.phar
             state=link
+      when: composer.stat.isfile is not defined or not composer.stat.isfile
+
+    - name: Check Docker installation
+      stat: path=/usr/bin/docker
+      register: docker
 
     - name: Install Docker
-      apt: pkg=docker.io
+      shell: wget -qO- https://get.docker.com/ | sh
+      when: docker.stat.isfile is not defined or not docker.stat.isfile
 
-    - name: Install GIT
-      apt: pkg=git
+    - name: Add Docker user group
+      shell: groupadd docker || true
+
+    - name: Add user to Docker group
+      shell: gpasswd -a vagrant docker
+
+    - name: Restart Docker service
+      shell: service docker restart
 
 - name: Prepare VDE projects
   hosts: default
