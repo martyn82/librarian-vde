@@ -7,7 +7,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "ubuntu/trusty64"
   config.vm.box_check_update = true
 
-  config.vm.network :private_network, ip: "10.0.3.101"
+  config.vm.network :private_network, ip: "10.0.10.101"
   config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.synced_folder "./projects", "/home/vagrant/p", nfs: true
 
