@@ -30,6 +30,12 @@
     - name: Update APT cache
       apt: update_cache=yes
 
+    - name: Install Java runtime
+      apt: pkg=default-jre
+
+    - name: Install Unzip
+      apt: pkg=unzip
+
     - name: Install GIT
       apt: pkg=git
 
@@ -45,19 +51,22 @@
     - name: Install PHP MongoDB extension
       apt: pkg=php5-mongo
 
+    - name: Install MongoDB client
+      apt: pkg=mongodb-clients
+
     - name: Check Composer installation
       stat: path=/usr/local/bin/composer
       register: composer
 
     - name: Install Composer
       shell: curl -sS https://getcomposer.org/installer | php
-      when: composer.stat.islink is not defined or not composer.stat.islink
+      when: not composer.stat.exists
 
     - name: Add Composer to bin
       file: dest=/usr/local/bin/composer
             src=/home/vagrant/composer.phar
             state=link
-      when: composer.stat.isfile is not defined or not composer.stat.isfile
+      when: not composer.stat.exists
 
     - name: Check Docker installation
       stat: path=/usr/bin/docker
@@ -65,7 +74,7 @@
 
     - name: Install Docker
       shell: wget -qO- https://get.docker.com/ | sh
-      when: docker.stat.isfile is not defined or not docker.stat.isfile
+      when: not docker.stat.exists
 
     - name: Add Docker user group
       shell: groupadd docker || true
@@ -75,6 +84,33 @@
 
     - name: Restart Docker service
       shell: service docker restart
+
+    - name: Check Sonar runner installation
+      stat: path=/usr/local/bin/sonar-runner
+      register: sonar
+
+    - name: Download Sonar runner
+      shell: wget http://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip && unzip sonar-runner-dist-2.4.zip
+      when: not sonar.stat.exists
+      notify:
+        - Clean Sonar runner download
+
+    - name: Install Sonar runner
+      command: mv sonar-runner-2.4 /opt/sonar-runner
+               creates=/opt/sonar-runner
+               removes=sonar-runner-2.4
+      when: not sonar.stat.exists
+
+    - name: Add Sonar runner to bin
+      file: dest=/usr/local/bin/sonar-runner
+            src=/opt/sonar-runner/bin/sonar-runner
+            state=link
+      when: not sonar.stat.exists
+
+  handlers:
+    - name: Clean Sonar runner download
+      file: path=sonar-runner-dist-2.4.zip
+              state=absent
 
 - name: Prepare VDE projects
   hosts: default
