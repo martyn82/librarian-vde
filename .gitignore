@@ -1,6 +1,10 @@
+# IDE
 .settings/
 .buildpath
 .vagrant
 .project
+.idea/
+*.iml
 
+# VDE projects
 projects/
