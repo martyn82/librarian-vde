@@ -34,4 +34,16 @@ $ vagrant ssh
 ```
 
 ### Using GIT inside the VDE
-To be able to `git push` from within the virtual machine, you will need to add machine SSH configuration to your host configuration. You can do this by copying the output of `$ vagrant ssh-config` and change the line `UserKnownHostsFile /dev/null` to the location of your SSH known_hosts file (usually located at `~/.ssh/known_hosts`). Then, add that block of configuration to your `~/.ssh/config` file. Finally, you need to apply the changes by running `$ ssh-add`.
+To be able to `git push` from within the virtual machine, you will need to add machine SSH configuration to your host configuration. You can do this by copying the output of the following command:
+```
+$ vagrant ssh-config
+```
+...and change the line `UserKnownHostsFile /dev/null` to the location of your SSH known_hosts file (usually located at `~/.ssh/known_hosts`).
+
+Then, add that block of configuration to your `~/.ssh/config` file.
+Finally, you need to apply the changes by running:
+```
+$ ssh-add
+```
+
+If, for some reason, you needed to rebuild the virtual machine, or after a reboot of your host machine, you cannot push to the Git repository from within the VM anymore. Then, you will need to re-run `$ ssh-add` in order for it to work again.
