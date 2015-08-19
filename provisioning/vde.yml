@@ -39,6 +39,12 @@
     - name: Install GIT
       apt: pkg=git
 
+    - name: Install NPM
+      apt: pkg=npm
+
+    - name: Install NodeJS legacy package
+      apt: pkg=nodejs-legacy
+
     - name: Install PHP
       apt: pkg=php5
 
@@ -107,6 +113,15 @@
             state=link
       when: not sonar.stat.exists
 
+    - name: Install display server
+      apt: pkg=xvfb
+
+    - name: Download Google Chrome stable
+      shell: wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+
+    - name: Install Google Chrome stable
+      shell: dpkg --force-depends -i google-chrome-stable_current_amd64.deb ; apt-get -fy install
+
   handlers:
     - name: Clean Sonar runner download
       file: path=sonar-runner-dist-2.4.zip
@@ -118,6 +133,9 @@
   sudo: false
 
   tasks:
+    - name: Start display server
+      shell: if pgrep Xvfb > /dev/null ; then true; else start-stop-daemon --start -b -x /usr/bin/Xvfb -- :0 -screen 0 1024x768x24 -ac ; fi
+
     - name: Copy GIT configuration
       copy: src=~/.gitconfig
             dest=/home/vagrant/.gitconfig
